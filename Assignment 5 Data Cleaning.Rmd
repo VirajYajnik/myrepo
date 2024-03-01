@@ -1,0 +1,125 @@
+---
+title: "Timeseries"
+author: "Viraj"
+date: "2024-02-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Download data on four stocks of your choosing using the quantmod R package illustrated in class.
+
+```{R}
+
+
+library(quantmod)
+getSymbols( c("YUM", "AAPL", "TSLA", "ULTA", "TPR"))
+```
+
+
+#2. Using the merge() function, combine the close or adjusted.close prices for each stock and assign
+#(<-) to a single data object.
+
+
+```{R}
+
+portfolio <- merge(YUM$YUM.Adjusted, AAPL$AAPL.Adjusted, TSLA$TSLA.Adjusted, ULTA$ULTA.Adjusted, TPR$TPR.Adjusted)
+
+```
+
+# Plot all four securities on one graph
+```{R}
+
+plot(portfolio, main="Stock Prices", col=c("blue", "red", "green", "orange", "purple"), ylab="Price", xlab="Date")
+legend("topleft", inset=0.05, legend=c("YUM", "AAPL", "TSLA", "ULTA", "TPR"), col=c("blue", "red", "green", "orange", "purple"), lty=1, cex=0.8)
+
+```
+
+#. Using the ISO-8601 data time standard, subset your data object to illustrate stock prices from the
+start of Covid (2020) to the present.
+
+```{R}
+# Load required library
+library(xts)
+
+# Convert the index of portfolio to POSIXct format
+portfolio_index <- as.POSIXct(index(portfolio), tz = "UTC")
+
+# Subset data from the start of Covid (2020) to the present
+portfolio_subset <- portfolio["2020-01-01/"]
+
+# Plot the subsetted data
+plot(portfolio_subset, main="Stock Prices (From 2020 to Present)", col=c("blue", "red", "green", "orange", "purple"), ylab="Price", xlab="Date")
+legend("topleft", inset=0.05, legend=c("YUM", "AAPL", "TSLA", "ULTA", "TPR"), col=c("blue", "red", "green", "orange", "purple"), lty=1, cex=0.8)
+
+
+```
+
+#Transformations of stock prices into percentage returns with the Return.calculate() function found
+in the PerformanceAnalytics package.
+
+
+```{R}
+# Load required libraries
+library(PerformanceAnalytics)
+
+# Calculate percentage returns
+returns <- Return.calculate(portfolio)
+
+# Plot the percentage returns
+plot(returns, main="Percentage Returns", col=c("blue", "red", "green", "orange", "purple"), ylab="Percentage Return", xlab="Date")
+legend("topleft", inset=0.05, legend=c("YUM", "AAPL", "TSLA", "ULTA", "TPR"), col=c("blue", "red", "green", "orange", "purple"), lty=1, cex=0.8)
+
+
+```
+
+
+#Chart all stock returns with the chart.CumReturns() function found in the PerformanceAnalytics
+package.
+
+
+```{R}
+# Load required libraries
+library(PerformanceAnalytics)
+
+# Calculate percentage returns
+returns <- Return.calculate(portfolio)
+
+# Plot the cumulative returns
+chart.CumReturns(returns["2020/"], main="Cumulative Returns", wealth.index = TRUE, legend.loc="topleft", col=c("blue", "red", "green", "orange", "purple"))
+
+
+```
+
+
+#Use the Return.annualized() function on your returns object to compute the annualized returns of
+each stock in your four stock portfolio. Which stock had the highest annualized return, and which the
+lowest?
+
+
+```{R}
+# Load required libraries
+library(PerformanceAnalytics)
+
+# Calculate annualized returns
+annualized_returns <- Return.annualized(returns)
+
+# Print the annualized returns
+print(annualized_returns)
+
+# Identify the stock with the highest and lowest annualized returns
+highest_return <- which.max(annualized_returns)
+lowest_return <- which.min(annualized_returns)
+
+cat("Stock with the highest annualized return:", names(annualized_returns)[highest_return], "\n")
+cat("Stock with the lowest annualized return:", names(annualized_returns)[lowest_return], "\n")
+
+
+
+```
+
+
+
